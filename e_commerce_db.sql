@@ -5,7 +5,7 @@
 -- Dumped from database version 16.2
 -- Dumped by pg_dump version 16.2
 
--- Started on 2024-03-18 22:57:07
+-- Started on 2024-03-23 23:46:28
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -18,7 +18,18 @@ SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
+DROP DATABASE IF EXISTS java4a;
+--
+-- TOC entry 4932 (class 1262 OID 16583)
+-- Name: java4a; Type: DATABASE; Schema: -; Owner: postgres
+--
 
+CREATE DATABASE java4a WITH TEMPLATE = template0 ENCODING = 'UTF8' LOCALE_PROVIDER = libc LOCALE = 'Turkish_Turkey.1254';
+
+
+ALTER DATABASE java4a OWNER TO postgres;
+
+\connect java4a
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -36,7 +47,7 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
--- TOC entry 228 (class 1259 OID 20654)
+-- TOC entry 215 (class 1259 OID 16584)
 -- Name: addresses; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -45,15 +56,16 @@ CREATE TABLE public.addresses (
     country_id integer NOT NULL,
     city_id integer NOT NULL,
     district_id integer NOT NULL,
-    address_details integer NOT NULL,
-    postal_code character varying
+    postal_code character varying,
+    name character varying NOT NULL,
+    address_details character varying NOT NULL
 );
 
 
 ALTER TABLE public.addresses OWNER TO postgres;
 
 --
--- TOC entry 226 (class 1259 OID 20640)
+-- TOC entry 216 (class 1259 OID 16589)
 -- Name: brands; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -66,7 +78,7 @@ CREATE TABLE public.brands (
 ALTER TABLE public.brands OWNER TO postgres;
 
 --
--- TOC entry 218 (class 1259 OID 20581)
+-- TOC entry 217 (class 1259 OID 16594)
 -- Name: categories; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -79,7 +91,7 @@ CREATE TABLE public.categories (
 ALTER TABLE public.categories OWNER TO postgres;
 
 --
--- TOC entry 217 (class 1259 OID 20580)
+-- TOC entry 218 (class 1259 OID 16599)
 -- Name: categories_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -94,7 +106,7 @@ ALTER TABLE public.categories ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
--- TOC entry 232 (class 1259 OID 20681)
+-- TOC entry 219 (class 1259 OID 16600)
 -- Name: cities; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -108,7 +120,7 @@ CREATE TABLE public.cities (
 ALTER TABLE public.cities OWNER TO postgres;
 
 --
--- TOC entry 221 (class 1259 OID 20605)
+-- TOC entry 220 (class 1259 OID 16605)
 -- Name: comments; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -125,7 +137,7 @@ CREATE TABLE public.comments (
 ALTER TABLE public.comments OWNER TO postgres;
 
 --
--- TOC entry 231 (class 1259 OID 20674)
+-- TOC entry 221 (class 1259 OID 16610)
 -- Name: countries; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -138,7 +150,7 @@ CREATE TABLE public.countries (
 ALTER TABLE public.countries OWNER TO postgres;
 
 --
--- TOC entry 229 (class 1259 OID 20661)
+-- TOC entry 222 (class 1259 OID 16615)
 -- Name: customers; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -152,7 +164,7 @@ CREATE TABLE public.customers (
 ALTER TABLE public.customers OWNER TO postgres;
 
 --
--- TOC entry 233 (class 1259 OID 20688)
+-- TOC entry 223 (class 1259 OID 16618)
 -- Name: districts; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -166,7 +178,7 @@ CREATE TABLE public.districts (
 ALTER TABLE public.districts OWNER TO postgres;
 
 --
--- TOC entry 227 (class 1259 OID 20647)
+-- TOC entry 224 (class 1259 OID 16623)
 -- Name: images; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -179,7 +191,7 @@ CREATE TABLE public.images (
 ALTER TABLE public.images OWNER TO postgres;
 
 --
--- TOC entry 225 (class 1259 OID 20633)
+-- TOC entry 225 (class 1259 OID 16628)
 -- Name: order_details; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -196,25 +208,25 @@ CREATE TABLE public.order_details (
 ALTER TABLE public.order_details OWNER TO postgres;
 
 --
--- TOC entry 219 (class 1259 OID 20593)
+-- TOC entry 226 (class 1259 OID 16633)
 -- Name: orders; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.orders (
     id integer NOT NULL,
     customer_id integer NOT NULL,
-    shipment_id integer NOT NULL,
     delivery_address_id integer NOT NULL,
     total_amount double precision NOT NULL,
     order_date date NOT NULL,
-    shipment_fee double precision NOT NULL
+    shipment_fee double precision NOT NULL,
+    payment_id integer NOT NULL
 );
 
 
 ALTER TABLE public.orders OWNER TO postgres;
 
 --
--- TOC entry 234 (class 1259 OID 20695)
+-- TOC entry 227 (class 1259 OID 16636)
 -- Name: orders_customer_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -229,36 +241,35 @@ ALTER TABLE public.orders ALTER COLUMN customer_id ADD GENERATED ALWAYS AS IDENT
 
 
 --
--- TOC entry 223 (class 1259 OID 20619)
+-- TOC entry 229 (class 1259 OID 16642)
+-- Name: payment_methods; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.payment_methods (
+    id integer NOT NULL,
+    type character varying NOT NULL
+);
+
+
+ALTER TABLE public.payment_methods OWNER TO postgres;
+
+--
+-- TOC entry 228 (class 1259 OID 16637)
 -- Name: payments; Type: TABLE; Schema: public; Owner: postgres
 --
 
 CREATE TABLE public.payments (
     id integer NOT NULL,
-    order_id integer NOT NULL,
     payment_date date NOT NULL,
-    amount_decimal numeric NOT NULL,
-    payments_methods_id integer NOT NULL
+    amount numeric NOT NULL,
+    payment_method_id integer NOT NULL
 );
 
 
 ALTER TABLE public.payments OWNER TO postgres;
 
 --
--- TOC entry 235 (class 1259 OID 20818)
--- Name: payments_methods; Type: TABLE; Schema: public; Owner: postgres
---
-
-CREATE TABLE public.payments_methods (
-    id integer NOT NULL,
-    type character varying NOT NULL
-);
-
-
-ALTER TABLE public.payments_methods OWNER TO postgres;
-
---
--- TOC entry 238 (class 1259 OID 20862)
+-- TOC entry 230 (class 1259 OID 16647)
 -- Name: product_images; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -272,7 +283,7 @@ CREATE TABLE public.product_images (
 ALTER TABLE public.product_images OWNER TO postgres;
 
 --
--- TOC entry 216 (class 1259 OID 20573)
+-- TOC entry 231 (class 1259 OID 16650)
 -- Name: products; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -283,7 +294,7 @@ CREATE TABLE public.products (
     category_id integer NOT NULL,
     unit_price double precision NOT NULL,
     stock integer NOT NULL,
-    suppliers_id integer NOT NULL,
+    supplier_id integer NOT NULL,
     description text
 );
 
@@ -291,7 +302,7 @@ CREATE TABLE public.products (
 ALTER TABLE public.products OWNER TO postgres;
 
 --
--- TOC entry 220 (class 1259 OID 20604)
+-- TOC entry 232 (class 1259 OID 16655)
 -- Name: products_category_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -306,7 +317,7 @@ ALTER TABLE public.products ALTER COLUMN category_id ADD GENERATED ALWAYS AS IDE
 
 
 --
--- TOC entry 215 (class 1259 OID 20572)
+-- TOC entry 233 (class 1259 OID 16656)
 -- Name: products_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -321,7 +332,7 @@ ALTER TABLE public.products ALTER COLUMN id ADD GENERATED ALWAYS AS IDENTITY (
 
 
 --
--- TOC entry 224 (class 1259 OID 20626)
+-- TOC entry 234 (class 1259 OID 16657)
 -- Name: shipments; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -338,7 +349,7 @@ CREATE TABLE public.shipments (
 ALTER TABLE public.shipments OWNER TO postgres;
 
 --
--- TOC entry 237 (class 1259 OID 20850)
+-- TOC entry 235 (class 1259 OID 16662)
 -- Name: shipping_companies; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -351,7 +362,7 @@ CREATE TABLE public.shipping_companies (
 ALTER TABLE public.shipping_companies OWNER TO postgres;
 
 --
--- TOC entry 222 (class 1259 OID 20612)
+-- TOC entry 236 (class 1259 OID 16667)
 -- Name: suppliers; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -367,7 +378,7 @@ CREATE TABLE public.suppliers (
 ALTER TABLE public.suppliers OWNER TO postgres;
 
 --
--- TOC entry 236 (class 1259 OID 20830)
+-- TOC entry 237 (class 1259 OID 16672)
 -- Name: user_addresses; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -381,7 +392,7 @@ CREATE TABLE public.user_addresses (
 ALTER TABLE public.user_addresses OWNER TO postgres;
 
 --
--- TOC entry 230 (class 1259 OID 20666)
+-- TOC entry 238 (class 1259 OID 16675)
 -- Name: users; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -399,24 +410,24 @@ CREATE TABLE public.users (
 ALTER TABLE public.users OWNER TO postgres;
 
 --
--- TOC entry 4987 (class 0 OID 20654)
--- Dependencies: 228
+-- TOC entry 4903 (class 0 OID 16584)
+-- Dependencies: 215
 -- Data for Name: addresses; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 
 
 --
--- TOC entry 4985 (class 0 OID 20640)
--- Dependencies: 226
+-- TOC entry 4904 (class 0 OID 16589)
+-- Dependencies: 216
 -- Data for Name: brands; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 
 
 --
--- TOC entry 4977 (class 0 OID 20581)
--- Dependencies: 218
+-- TOC entry 4905 (class 0 OID 16594)
+-- Dependencies: 217
 -- Data for Name: categories; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -425,55 +436,55 @@ INSERT INTO public.categories (id, name) OVERRIDING SYSTEM VALUE VALUES (2, 'Ele
 
 
 --
--- TOC entry 4991 (class 0 OID 20681)
--- Dependencies: 232
+-- TOC entry 4907 (class 0 OID 16600)
+-- Dependencies: 219
 -- Data for Name: cities; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 
 
 --
--- TOC entry 4980 (class 0 OID 20605)
--- Dependencies: 221
+-- TOC entry 4908 (class 0 OID 16605)
+-- Dependencies: 220
 -- Data for Name: comments; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 
 
 --
--- TOC entry 4990 (class 0 OID 20674)
--- Dependencies: 231
+-- TOC entry 4909 (class 0 OID 16610)
+-- Dependencies: 221
 -- Data for Name: countries; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 
 
 --
--- TOC entry 4988 (class 0 OID 20661)
--- Dependencies: 229
+-- TOC entry 4910 (class 0 OID 16615)
+-- Dependencies: 222
 -- Data for Name: customers; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 
 
 --
--- TOC entry 4992 (class 0 OID 20688)
--- Dependencies: 233
+-- TOC entry 4911 (class 0 OID 16618)
+-- Dependencies: 223
 -- Data for Name: districts; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 
 
 --
--- TOC entry 4986 (class 0 OID 20647)
--- Dependencies: 227
+-- TOC entry 4912 (class 0 OID 16623)
+-- Dependencies: 224
 -- Data for Name: images; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 
 
 --
--- TOC entry 4984 (class 0 OID 20633)
+-- TOC entry 4913 (class 0 OID 16628)
 -- Dependencies: 225
 -- Data for Name: order_details; Type: TABLE DATA; Schema: public; Owner: postgres
 --
@@ -481,97 +492,97 @@ INSERT INTO public.categories (id, name) OVERRIDING SYSTEM VALUE VALUES (2, 'Ele
 
 
 --
--- TOC entry 4978 (class 0 OID 20593)
--- Dependencies: 219
+-- TOC entry 4914 (class 0 OID 16633)
+-- Dependencies: 226
 -- Data for Name: orders; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 
 
 --
--- TOC entry 4982 (class 0 OID 20619)
--- Dependencies: 223
+-- TOC entry 4917 (class 0 OID 16642)
+-- Dependencies: 229
+-- Data for Name: payment_methods; Type: TABLE DATA; Schema: public; Owner: postgres
+--
+
+
+
+--
+-- TOC entry 4916 (class 0 OID 16637)
+-- Dependencies: 228
 -- Data for Name: payments; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 
 
 --
--- TOC entry 4994 (class 0 OID 20818)
--- Dependencies: 235
--- Data for Name: payments_methods; Type: TABLE DATA; Schema: public; Owner: postgres
---
-
-
-
---
--- TOC entry 4997 (class 0 OID 20862)
--- Dependencies: 238
+-- TOC entry 4918 (class 0 OID 16647)
+-- Dependencies: 230
 -- Data for Name: product_images; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 
 
 --
--- TOC entry 4975 (class 0 OID 20573)
--- Dependencies: 216
+-- TOC entry 4919 (class 0 OID 16650)
+-- Dependencies: 231
 -- Data for Name: products; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 
 
 --
--- TOC entry 4983 (class 0 OID 20626)
--- Dependencies: 224
+-- TOC entry 4922 (class 0 OID 16657)
+-- Dependencies: 234
 -- Data for Name: shipments; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 
 
 --
--- TOC entry 4996 (class 0 OID 20850)
--- Dependencies: 237
+-- TOC entry 4923 (class 0 OID 16662)
+-- Dependencies: 235
 -- Data for Name: shipping_companies; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 
 
 --
--- TOC entry 4981 (class 0 OID 20612)
--- Dependencies: 222
+-- TOC entry 4924 (class 0 OID 16667)
+-- Dependencies: 236
 -- Data for Name: suppliers; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 
 
 --
--- TOC entry 4995 (class 0 OID 20830)
--- Dependencies: 236
+-- TOC entry 4925 (class 0 OID 16672)
+-- Dependencies: 237
 -- Data for Name: user_addresses; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 
 
 --
--- TOC entry 4989 (class 0 OID 20666)
--- Dependencies: 230
+-- TOC entry 4926 (class 0 OID 16675)
+-- Dependencies: 238
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 
 
 --
--- TOC entry 5004 (class 0 OID 0)
--- Dependencies: 217
+-- TOC entry 4933 (class 0 OID 0)
+-- Dependencies: 218
 -- Name: categories_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
-SELECT pg_catalog.setval('public.categories_id_seq', 2, true);
+SELECT pg_catalog.setval('public.categories_id_seq', 3, true);
 
 
 --
--- TOC entry 5005 (class 0 OID 0)
--- Dependencies: 234
+-- TOC entry 4934 (class 0 OID 0)
+-- Dependencies: 227
 -- Name: orders_customer_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
@@ -579,8 +590,8 @@ SELECT pg_catalog.setval('public.orders_customer_id_seq', 1, false);
 
 
 --
--- TOC entry 5006 (class 0 OID 0)
--- Dependencies: 220
+-- TOC entry 4935 (class 0 OID 0)
+-- Dependencies: 232
 -- Name: products_category_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
@@ -588,8 +599,8 @@ SELECT pg_catalog.setval('public.products_category_id_seq', 1, false);
 
 
 --
--- TOC entry 5007 (class 0 OID 0)
--- Dependencies: 215
+-- TOC entry 4936 (class 0 OID 0)
+-- Dependencies: 233
 -- Name: products_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
@@ -597,7 +608,7 @@ SELECT pg_catalog.setval('public.products_id_seq', 1, false);
 
 
 --
--- TOC entry 4788 (class 2606 OID 20660)
+-- TOC entry 4698 (class 2606 OID 16681)
 -- Name: addresses addresses_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -606,7 +617,7 @@ ALTER TABLE ONLY public.addresses
 
 
 --
--- TOC entry 4784 (class 2606 OID 20646)
+-- TOC entry 4700 (class 2606 OID 16683)
 -- Name: brands brands_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -615,7 +626,7 @@ ALTER TABLE ONLY public.brands
 
 
 --
--- TOC entry 4770 (class 2606 OID 20587)
+-- TOC entry 4702 (class 2606 OID 16685)
 -- Name: categories categories_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -624,7 +635,7 @@ ALTER TABLE ONLY public.categories
 
 
 --
--- TOC entry 4796 (class 2606 OID 20687)
+-- TOC entry 4704 (class 2606 OID 16687)
 -- Name: cities cities_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -633,7 +644,7 @@ ALTER TABLE ONLY public.cities
 
 
 --
--- TOC entry 4774 (class 2606 OID 20611)
+-- TOC entry 4706 (class 2606 OID 16689)
 -- Name: comments comments_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -642,7 +653,7 @@ ALTER TABLE ONLY public.comments
 
 
 --
--- TOC entry 4794 (class 2606 OID 20680)
+-- TOC entry 4708 (class 2606 OID 16691)
 -- Name: countries countries_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -651,7 +662,7 @@ ALTER TABLE ONLY public.countries
 
 
 --
--- TOC entry 4790 (class 2606 OID 20791)
+-- TOC entry 4710 (class 2606 OID 16693)
 -- Name: customers customers_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -660,7 +671,7 @@ ALTER TABLE ONLY public.customers
 
 
 --
--- TOC entry 4798 (class 2606 OID 20694)
+-- TOC entry 4712 (class 2606 OID 16695)
 -- Name: districts districts_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -669,7 +680,7 @@ ALTER TABLE ONLY public.districts
 
 
 --
--- TOC entry 4786 (class 2606 OID 20774)
+-- TOC entry 4714 (class 2606 OID 16697)
 -- Name: images images_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -678,7 +689,7 @@ ALTER TABLE ONLY public.images
 
 
 --
--- TOC entry 4782 (class 2606 OID 20639)
+-- TOC entry 4716 (class 2606 OID 16699)
 -- Name: order_details order_details_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -687,7 +698,7 @@ ALTER TABLE ONLY public.order_details
 
 
 --
--- TOC entry 4772 (class 2606 OID 20702)
+-- TOC entry 4718 (class 2606 OID 16701)
 -- Name: orders orders_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -696,16 +707,16 @@ ALTER TABLE ONLY public.orders
 
 
 --
--- TOC entry 4800 (class 2606 OID 20824)
--- Name: payments_methods payments_methods_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4722 (class 2606 OID 16703)
+-- Name: payment_methods payments_methods_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
-ALTER TABLE ONLY public.payments_methods
+ALTER TABLE ONLY public.payment_methods
     ADD CONSTRAINT payments_methods_pkey PRIMARY KEY (id);
 
 
 --
--- TOC entry 4778 (class 2606 OID 20625)
+-- TOC entry 4720 (class 2606 OID 16705)
 -- Name: payments payments_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -714,7 +725,7 @@ ALTER TABLE ONLY public.payments
 
 
 --
--- TOC entry 4806 (class 2606 OID 20866)
+-- TOC entry 4724 (class 2606 OID 16707)
 -- Name: product_images product_images_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -723,7 +734,7 @@ ALTER TABLE ONLY public.product_images
 
 
 --
--- TOC entry 4768 (class 2606 OID 20579)
+-- TOC entry 4726 (class 2606 OID 16709)
 -- Name: products products_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -732,7 +743,7 @@ ALTER TABLE ONLY public.products
 
 
 --
--- TOC entry 4780 (class 2606 OID 20632)
+-- TOC entry 4728 (class 2606 OID 16711)
 -- Name: shipments shipments_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -741,7 +752,7 @@ ALTER TABLE ONLY public.shipments
 
 
 --
--- TOC entry 4804 (class 2606 OID 20856)
+-- TOC entry 4730 (class 2606 OID 16713)
 -- Name: shipping_companies shipping_companies_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -750,7 +761,7 @@ ALTER TABLE ONLY public.shipping_companies
 
 
 --
--- TOC entry 4776 (class 2606 OID 20618)
+-- TOC entry 4732 (class 2606 OID 16715)
 -- Name: suppliers suppliers_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -759,7 +770,7 @@ ALTER TABLE ONLY public.suppliers
 
 
 --
--- TOC entry 4802 (class 2606 OID 20834)
+-- TOC entry 4734 (class 2606 OID 16717)
 -- Name: user_addresses user_addresses_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -768,7 +779,7 @@ ALTER TABLE ONLY public.user_addresses
 
 
 --
--- TOC entry 4792 (class 2606 OID 20672)
+-- TOC entry 4736 (class 2606 OID 16719)
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -777,7 +788,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 4821 (class 2606 OID 20780)
+-- TOC entry 4737 (class 2606 OID 16720)
 -- Name: addresses FK_ADDRESSES_CITIES; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -786,7 +797,7 @@ ALTER TABLE ONLY public.addresses
 
 
 --
--- TOC entry 4822 (class 2606 OID 20775)
+-- TOC entry 4738 (class 2606 OID 16725)
 -- Name: addresses FK_ADDRESSES_COUNTRIES; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -795,7 +806,7 @@ ALTER TABLE ONLY public.addresses
 
 
 --
--- TOC entry 4823 (class 2606 OID 20785)
+-- TOC entry 4739 (class 2606 OID 16730)
 -- Name: addresses FK_ADDRESSES_DISTRICTS; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -804,7 +815,7 @@ ALTER TABLE ONLY public.addresses
 
 
 --
--- TOC entry 4825 (class 2606 OID 20802)
+-- TOC entry 4740 (class 2606 OID 16735)
 -- Name: cities FK_CITIES_COUNTRIES; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -813,7 +824,7 @@ ALTER TABLE ONLY public.cities
 
 
 --
--- TOC entry 4812 (class 2606 OID 20738)
+-- TOC entry 4741 (class 2606 OID 16740)
 -- Name: comments FK_COMMENTS_PRODUCTS; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -822,7 +833,7 @@ ALTER TABLE ONLY public.comments
 
 
 --
--- TOC entry 4813 (class 2606 OID 20743)
+-- TOC entry 4742 (class 2606 OID 16745)
 -- Name: comments FK_COMMENTS_USERS; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -831,7 +842,7 @@ ALTER TABLE ONLY public.comments
 
 
 --
--- TOC entry 4824 (class 2606 OID 20792)
+-- TOC entry 4743 (class 2606 OID 16750)
 -- Name: customers FK_CUSTOMERS_USERS; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -840,7 +851,7 @@ ALTER TABLE ONLY public.customers
 
 
 --
--- TOC entry 4826 (class 2606 OID 20807)
+-- TOC entry 4744 (class 2606 OID 16755)
 -- Name: districts FK_DISTRICTS_CITIES; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -849,7 +860,7 @@ ALTER TABLE ONLY public.districts
 
 
 --
--- TOC entry 4810 (class 2606 OID 20713)
+-- TOC entry 4747 (class 2606 OID 16760)
 -- Name: orders FK_ORDERS_ADDRESSES; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -858,16 +869,16 @@ ALTER TABLE ONLY public.orders
 
 
 --
--- TOC entry 4811 (class 2606 OID 20708)
--- Name: orders FK_ORDERS_SHIPMENTS; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+-- TOC entry 4748 (class 2606 OID 16963)
+-- Name: orders FK_ORDERS_PAYMENTS; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.orders
-    ADD CONSTRAINT "FK_ORDERS_SHIPMENTS" FOREIGN KEY (shipment_id) REFERENCES public.shipments(id) NOT VALID;
+    ADD CONSTRAINT "FK_ORDERS_PAYMENTS" FOREIGN KEY (payment_id) REFERENCES public.payments(id) NOT VALID;
 
 
 --
--- TOC entry 4819 (class 2606 OID 20758)
+-- TOC entry 4745 (class 2606 OID 16770)
 -- Name: order_details FK_ORDER_DETAILS_ORDERS; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -876,7 +887,7 @@ ALTER TABLE ONLY public.order_details
 
 
 --
--- TOC entry 4820 (class 2606 OID 20763)
+-- TOC entry 4746 (class 2606 OID 16775)
 -- Name: order_details FK_ORDER_DETAILS_PRODUCTS; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -885,25 +896,16 @@ ALTER TABLE ONLY public.order_details
 
 
 --
--- TOC entry 4815 (class 2606 OID 20813)
--- Name: payments FK_PAYMENTS_ORDERS; Type: FK CONSTRAINT; Schema: public; Owner: postgres
---
-
-ALTER TABLE ONLY public.payments
-    ADD CONSTRAINT "FK_PAYMENTS_ORDERS" FOREIGN KEY (order_id) REFERENCES public.orders(id) NOT VALID;
-
-
---
--- TOC entry 4816 (class 2606 OID 20825)
+-- TOC entry 4749 (class 2606 OID 16785)
 -- Name: payments FK_PAYMENTS_PAYMENTS_METHODS; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.payments
-    ADD CONSTRAINT "FK_PAYMENTS_PAYMENTS_METHODS" FOREIGN KEY (payments_methods_id) REFERENCES public.payments_methods(id) NOT VALID;
+    ADD CONSTRAINT "FK_PAYMENTS_PAYMENTS_METHODS" FOREIGN KEY (payment_method_id) REFERENCES public.payment_methods(id) NOT VALID;
 
 
 --
--- TOC entry 4807 (class 2606 OID 20718)
+-- TOC entry 4752 (class 2606 OID 16790)
 -- Name: products FK_PRODUCTS_BRANDS; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -912,7 +914,7 @@ ALTER TABLE ONLY public.products
 
 
 --
--- TOC entry 4808 (class 2606 OID 20723)
+-- TOC entry 4753 (class 2606 OID 16795)
 -- Name: products FK_PRODUCTS_CATEGORIES; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -921,16 +923,16 @@ ALTER TABLE ONLY public.products
 
 
 --
--- TOC entry 4809 (class 2606 OID 20728)
+-- TOC entry 4754 (class 2606 OID 16800)
 -- Name: products FK_PRODUCTS_SUPPLIERS; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
 ALTER TABLE ONLY public.products
-    ADD CONSTRAINT "FK_PRODUCTS_SUPPLIERS" FOREIGN KEY (suppliers_id) REFERENCES public.suppliers(id) NOT VALID;
+    ADD CONSTRAINT "FK_PRODUCTS_SUPPLIERS" FOREIGN KEY (supplier_id) REFERENCES public.suppliers(id) NOT VALID;
 
 
 --
--- TOC entry 4829 (class 2606 OID 20872)
+-- TOC entry 4750 (class 2606 OID 16805)
 -- Name: product_images FK_PRODUCT_IMAGES_IMAGES; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -939,7 +941,7 @@ ALTER TABLE ONLY public.product_images
 
 
 --
--- TOC entry 4830 (class 2606 OID 20867)
+-- TOC entry 4751 (class 2606 OID 16810)
 -- Name: product_images FK_PRODUCT_IMAGES_PRODUCTS; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -948,7 +950,7 @@ ALTER TABLE ONLY public.product_images
 
 
 --
--- TOC entry 4817 (class 2606 OID 20753)
+-- TOC entry 4755 (class 2606 OID 16815)
 -- Name: shipments FK_SHIPMENTS_ORDERS; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -957,7 +959,7 @@ ALTER TABLE ONLY public.shipments
 
 
 --
--- TOC entry 4818 (class 2606 OID 20857)
+-- TOC entry 4756 (class 2606 OID 16820)
 -- Name: shipments FK_SHIPMENTS_SHIPPING_COMPANIES; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -966,7 +968,7 @@ ALTER TABLE ONLY public.shipments
 
 
 --
--- TOC entry 4814 (class 2606 OID 20748)
+-- TOC entry 4757 (class 2606 OID 16825)
 -- Name: suppliers FK_SUPPLIERS_USERS; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -975,7 +977,7 @@ ALTER TABLE ONLY public.suppliers
 
 
 --
--- TOC entry 4827 (class 2606 OID 20835)
+-- TOC entry 4758 (class 2606 OID 16830)
 -- Name: user_addresses FK_USER_ADDRESSES_ADDRESSES; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -984,7 +986,7 @@ ALTER TABLE ONLY public.user_addresses
 
 
 --
--- TOC entry 4828 (class 2606 OID 20845)
+-- TOC entry 4759 (class 2606 OID 16835)
 -- Name: user_addresses FK_USER_ADDRESSES_USERS; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -992,7 +994,7 @@ ALTER TABLE ONLY public.user_addresses
     ADD CONSTRAINT "FK_USER_ADDRESSES_USERS" FOREIGN KEY (address_id) REFERENCES public.addresses(id) NOT VALID;
 
 
--- Completed on 2024-03-18 22:57:07
+-- Completed on 2024-03-23 23:46:29
 
 --
 -- PostgreSQL database dump complete
